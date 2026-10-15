@@ -862,71 +862,20 @@
     setTimeout(type, startDelay);
   }
 
-  /* ===== Последовательная печать ===== */
-  function typeTextSequential(elements, speed = 22, gap = 120, startDelay = 0) {
-    return new Promise((resolve) => {
-      if (!elements.length) { resolve(); return; }
-
-      if (!animationsEnabled()) {
-        elements.forEach((el) => {
-          el.textContent = el.getAttribute('data-type') || '';
-        });
-        resolve();
-        return;
-      }
-
-      elements.forEach((el) => { el.textContent = ''; });
-
-      let idx = 0;
-
-      function next() {
-        if (idx >= elements.length) { resolve(); return; }
-
-        const el = elements[idx];
-        const text = el.getAttribute('data-type') || '';
-
-        if (!animationsEnabled()) {
-          elements.forEach((e) => {
-            e.textContent = e.getAttribute('data-type') || '';
-          });
-          resolve();
-          return;
-        }
-
-        let j = 0;
-        function typeChar() {
-          if (!animationsEnabled()) {
-            el.textContent = text;
-            elements.forEach((e, k) => {
-              if (k > idx) e.textContent = e.getAttribute('data-type') || '';
-            });
-            resolve();
-            return;
-          }
-          if (j <= text.length) {
-            el.textContent = text.slice(0, j);
-            j++;
-            setTimeout(typeChar, speed);
-          } else {
-            idx++;
-            setTimeout(next, gap);
-          }
-        }
-        typeChar();
-      }
-
-      setTimeout(next, startDelay);
-    });
-  }
-
-  /* Запуск последовательной печати досье */
+  /* ===== Параллельная печать досье =====
+     Каждая строка печатается САМА ПО СЕБЕ, одновременно с остальными.
+     Небольшой сдвиг (idx * 60 мс) — только чтобы строки стартовали
+     «волной», а не выглядели одним мгновенным блоком. */
   function runDossierTyping() {
     const dossierLines = document.querySelectorAll('#dossier .about-sign__text p[data-type]');
     if (!dossierLines.length) return;
-    typeTextSequential(Array.from(dossierLines), 22, 120, 1200);
+    dossierLines.forEach((el, idx) => {
+      const text = el.getAttribute('data-type') || '';
+      typeText(el, text, 18, 1200 + idx * 60);
+    });
   }
 
-  /* ===== Печать общих элементов ===== */
+  /* ===== Печать общих элементов (кроме досье) ===== */
   function runAllTyping() {
     document.querySelectorAll('[data-type]').forEach((el, idx) => {
       if (el.closest('#dossier')) return;
