@@ -23,7 +23,6 @@
     transition: none !important;
   }
 
-  /* ===== Светлая тема ===== */
   body.light { background: #f5f5f5; }
   body.light .site-preview { background: #e0e0e0; }
   body.light .projects-title { background: #eaeaea; color: #333; }
@@ -74,7 +73,6 @@
   body.light .social-item__name { color: #222; }
   body.light .social-item__user { color: #888; }
 
-  /* ===== Превью ===== */
   .site-preview {
     position: relative;
     width: 100%;
@@ -549,11 +547,11 @@
     </div>
 
     <div class="about-sign__text">
-      <p>Я — кодер. Пишу код, вожусь с софтом и всем, что с этим связано.</p>
-      <p>В электронике тоже кой-чего смыслю и могу собрать что-нибудь из этой сферы. Не основное моё дело, но интерес и знания имею.</p>
-      <p>Тружусь на себя и ради себя.</p>
-      <p>Известен как ARTEMIS.</p>
-      <p>Люблю копаться в том, как всё устроено изнутри. Где граница — вижу, и за неё не захожу, ибо знать силу и применять её — не одно и то же.</p>
+      <p data-type="Я — кодер. Пишу код, вожусь с софтом и всем, что с этим связано."></p>
+      <p data-type="В электронике тоже кой-чего смыслю и могу собрать что-нибудь из этой сферы. Не основное моё дело, но интерес и знания имею."></p>
+      <p data-type="Тружусь на себя и ради себя."></p>
+      <p data-type="Известен как ARTEMIS."></p>
+      <p data-type="Люблю копаться в том, как всё устроено изнутри. Где граница — вижу, и за неё не захожу, ибо знать силу и применять её — не одно и то же."></p>
     </div>
 
   </div>
@@ -751,7 +749,7 @@
     }
   });
 
-  /* ===== Cookies (для запоминания логина) ===== */
+  /* ===== Cookies ===== */
   function setCookie(name, value, days) {
     const d = new Date();
     d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -765,13 +763,11 @@
     document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
   }
 
-  /* ===== Firebase bridge =====
-     Реальные функции initFirebase / fbGetUser / fbCreateUser / fbUpdateUser
-     определяются ниже в <script type="module">. Здесь мы просто держим
-     ссылки, чтобы остальной код мог их вызвать. */
-  let fbGetUser = null;      // async (name) => object|null
-  let fbCreateUser = null;   // async (name, pass, theme, anim) => boolean
-  let fbUpdateUser = null;   // async (name, patch) => void
+  /* ===== Firebase bridge ===== */
+  let fbGetUser = null;
+  let fbCreateUser = null;
+  let fbUpdateUser = null;
+  let fbDeleteUser = null;
 
   window.__firebaseReady = new Promise((resolve) => {
     window.__resolveFirebaseReady = resolve;
@@ -866,12 +862,85 @@
     setTimeout(type, startDelay);
   }
 
+  /* ===== Последовательная печать (для досье) =====
+     Печатает элементы по очереди: сначала полностью первый,
+     потом пауза — и следующий. */
+  function typeTextSequential(elements, speed = 28, gap = 450, startDelay = 0) {
+    return new Promise((resolve) => {
+      if (!elements.length) { resolve(); return; }
+
+      // если анимации выключены — показать всё сразу
+      if (!animationsEnabled()) {
+        elements.forEach((el) => {
+          el.textContent = el.getAttribute('data-type') || '';
+        });
+        resolve();
+        return;
+      }
+
+      // очищаем все заранее
+      elements.forEach((el) => { el.textContent = ''; });
+
+      let idx = 0;
+
+      function next() {
+        if (idx >= elements.length) { resolve(); return; }
+
+        const el = elements[idx];
+        const text = el.getAttribute('data-type') || '';
+
+        // если анимации выключили по ходу — показать всё
+        if (!animationsEnabled()) {
+          elements.forEach((e) => {
+            e.textContent = e.getAttribute('data-type') || '';
+          });
+          resolve();
+          return;
+        }
+
+        let j = 0;
+        function typeChar() {
+          if (!animationsEnabled()) {
+            el.textContent = text;
+            elements.forEach((e, k) => {
+              if (k > idx) e.textContent = e.getAttribute('data-type') || '';
+            });
+            resolve();
+            return;
+          }
+          if (j <= text.length) {
+            el.textContent = text.slice(0, j);
+            j++;
+            setTimeout(typeChar, speed);
+          } else {
+            idx++;
+            setTimeout(next, gap);
+          }
+        }
+        typeChar();
+      }
+
+      setTimeout(next, startDelay);
+    });
+  }
+
+  /* Запуск последовательной печати досье */
+  function runDossierTyping() {
+    const dossierLines = document.querySelectorAll('#dossier .about-sign__text p[data-type]');
+    if (!dossierLines.length) return;
+    typeTextSequential(Array.from(dossierLines), 28, 450, 1200);
+  }
+
+  /* ===== Печать общих элементов ===== */
   function runAllTyping() {
     document.querySelectorAll('[data-type]').forEach((el, idx) => {
+      // пропускаем строки досье — они печатаются отдельно
+      if (el.closest('#dossier')) return;
       const text = el.getAttribute('data-type');
       typeText(el, text, 18, 300 + idx * 200);
     });
   }
+
   function typeTiles() {
     document.querySelectorAll('.tile').forEach((tile, idx) => {
       const label = tile.dataset.label || '';
@@ -883,6 +952,7 @@
 
   runAllTyping();
   typeTiles();
+  runDossierTyping();
 
   (function revealTiles() {
     const tilesAll = document.querySelectorAll('.tile');
@@ -1081,11 +1151,9 @@
         return;
       }
 
-      // успешный вход
       setCookie('artemis_user', name, 365);
       showUser(name);
 
-      // применяем тему и анимации из Firebase
       applyTheme(user.theme === 'light', true);
       applyAnimSetting(user.anim !== 'off');
 
@@ -1199,6 +1267,7 @@
     if (on && !skipSave) {
       runAllTyping();
       typeTiles();
+      runDossierTyping();
       document.querySelectorAll('.tile').forEach(t => t.classList.remove('visible'));
       setTimeout(() => {
         document.querySelectorAll('.tile').forEach((t, idx) => {
@@ -1240,7 +1309,6 @@
         nameErr.textContent = 'Такое имя уже занято';
         return;
       }
-      // копируем запись на новое имя и удаляем старое
       const oldUser = await fbGetUser(currentUser);
       if (!oldUser) { nameErr.textContent = 'Ошибка: юзер не найден'; return; }
 
@@ -1627,10 +1695,7 @@
     }
   })();
 
-  /* ===== Функции работы с пользователями =====
-     Храним по ключу users/<имя>:
-       { pass: "...", theme: "dark"|"light", anim: "on"|"off", created: ts }
-     Имена нормализуем (trim + lower — чтобы "ARTEMIS" и "artemis" считались одним). */
+  /* ===== Функции работы с пользователями ===== */
   function normName(name) {
     return String(name || '').trim().toLowerCase();
   }
@@ -1645,7 +1710,6 @@
   window.fbCreateUser = async function(name, pass, theme, anim) {
     const key = normName(name);
     if (!key) return false;
-    // сначала проверим — нет ли уже
     const snap = await get(ref(db, 'users/' + key));
     if (snap.exists()) return false;
     await set(ref(db, 'users/' + key), {
@@ -1670,8 +1734,6 @@
     await remove(ref(db, 'users/' + key));
   };
 
-  // теперь основной скрипт может работать с этими функциями
-  window.fbGetUser_ = window.fbGetUser; // (на случай, если понадобится)
   fbGetUser = window.fbGetUser;
   fbCreateUser = window.fbCreateUser;
   fbUpdateUser = window.fbUpdateUser;
