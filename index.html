@@ -1,6 +1,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Превью сайта с меню</title>
+<title>ARTEMIS</title>
+<link rel="icon" type="image/png" sizes="32x32" href="ARTEMIS.png">
+<link rel="icon" type="image/png" sizes="16x16" href="ARTEMIS.png">
+<link rel="apple-touch-icon" sizes="180x180" href="ARTEMIS.png">
+<link rel="shortcut icon" href="ARTEMIS.png">
 <style>
   html, body {
     margin: 0;
@@ -1020,28 +1024,6 @@
     transition: color 0.4s ease;
   }
 
-  /* LibreCounter */
-  .librecounter-link {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    line-height: 1;
-  }
-  .librecounter-img {
-    height: 20px;
-    display: block;
-    filter: invert(1) brightness(0.9);
-    opacity: 0.85;
-    transition: opacity 0.2s ease, filter 0.4s ease;
-  }
-  body.light .librecounter-img {
-    filter: invert(0) brightness(1);
-    opacity: 0.85;
-  }
-  .librecounter-link:hover .librecounter-img {
-    opacity: 1;
-  }
-
   @media (max-width: 700px) {
     .site-footer {
       flex-direction: column;
@@ -1354,10 +1336,8 @@
 
     <div class="site-footer__online">
       <span class="site-footer__online-dot"></span>
-      Посещений:
-      <a class="librecounter-link" href="https://librecounter.org/referer/show" target="_blank" rel="noopener">
-        <img class="librecounter-img" src="https://librecounter.org/oldStyle.svg" referrerpolicy="unsafe-url" alt="Посещения">
-      </a>
+      Онлайн:
+      <span class="site-footer__online-count" id="onlineCount">—</span>
     </div>
 
     <a class="site-footer__player" href="https://vk.ru/audio671219224_456242573_63e834263d2c3a33b0" target="_blank" rel="noopener">
@@ -2265,9 +2245,7 @@
     }
   });
 
-  /* ===== Движение плавающей кнопки при скролле =====
-     Кнопка слегка «кивает» вниз при скролле и всегда
-     плавно возвращается в исходную позицию вверху. */
+  /* ===== Движение плавающей кнопки при скролле ===== */
   const START_TOP = 30;
   const MAX_OFFSET = 40;
   const EASING = 0.08;
@@ -2303,4 +2281,70 @@
   }
 
   requestAnimationFrame(loop);
+</script>
+
+<!-- ===== Счётчик онлайна через Firebase ===== -->
+<script type="module">
+  // ============================================================
+  //  ВСТАВЬ СЮДА СВОЙ КОНФИГ ИЗ FIREBASE CONSOLE
+  //  Настройки проекта → Общие → Ваши приложения → веб-приложение
+  //  ВАЖНО: поле databaseURL должно быть обязательно!
+  //  Для проекта artemis-112 он выглядит так:
+  //  https://artemis-112-default-rtdb.firebaseio.com
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "ВСТАВЬ_СВОЙ_API_KEY",
+    authDomain: "artemis-112.firebaseapp.com",
+    databaseURL: "https://artemis-112-default-rtdb.firebaseio.com",
+    projectId: "artemis-112",
+    storageBucket: "artemis-112.appspot.com",
+    messagingSenderId: "ВСТАВЬ_СВОЙ_SENDER_ID",
+    appId: "ВСТАВЬ_СВОЙ_APP_ID"
+  };
+  // ============================================================
+
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getDatabase, ref, onDisconnect, set, onValue, remove }
+      = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // уникальный ID для этой вкладки
+    const clientId = 'u_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
+
+    const onlineEl = document.getElementById('onlineCount');
+    const myRef = ref(db, 'online/' + clientId);
+
+    // помечаем себя онлайн
+    await set(myRef, { ts: Date.now() });
+
+    // при закрытии вкладки — удаляем запись
+    onDisconnect(myRef).remove();
+
+    // на всякий случай обновляем timestamp каждые 25 секунд,
+    // чтобы не считался «зависшим» при сбое onDisconnect
+    setInterval(() => {
+      set(myRef, { ts: Date.now() }).catch(() => {});
+    }, 25000);
+
+    // считаем всех онлайн (обновляется в реальном времени)
+    const allRef = ref(db, 'online');
+    onValue(allRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const now = Date.now();
+      let count = 0;
+      for (const id in data) {
+        const item = data[id];
+        if (item && now - item.ts < 60000) count++;
+      }
+      if (onlineEl) onlineEl.textContent = count;
+    });
+
+  } catch (err) {
+    console.error('Firebase online counter error:', err);
+    const onlineEl = document.getElementById('onlineCount');
+    if (onlineEl) onlineEl.textContent = '—';
+  }
 </script>
