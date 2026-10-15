@@ -307,8 +307,41 @@
   .projects-panel { width: 100%; max-height: 0; overflow: hidden; opacity: 0; background: #151515; border-top: 1px solid #2a2a2a; padding: 0 20px; box-sizing: border-box; transition: max-height 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, padding 0.6s ease, background 0.4s ease, border-color 0.4s ease; }
   .projects-panel.open { max-height: 5000px; opacity: 1; padding: 30px 20px; }
   .projects-panel__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; align-items: start; align-content: start; }
-  .project-card { background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 12px; padding: 14px 16px; color: #c8c8c8; display: flex; flex-direction: column; gap: 6px; cursor: pointer; align-self: start; height: fit-content; transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease; }
-  .project-card:hover { background: #353535; border-color: #4a4a4a; transform: translateY(-3px); }
+
+  .project-card {
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #c8c8c8;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    align-self: start;
+    height: fit-content;
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+    transition: opacity 0.5s ease,
+                transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease;
+  }
+  .project-card.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .project-card.visible:hover {
+    background: #353535;
+    border-color: #4a4a4a;
+    transform: translateY(-3px) scale(1);
+  }
+  body.no-animations .project-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   .project-card__name { font-size: 14px; font-weight: 700; color: #e8e8e8; line-height: 1.25; min-height: 18px; }
   .project-card__meta { font-size: 11px; color: #9a9a9a; min-height: 14px; }
   .project-card__action { font-size: 12px; color: #d0d0d0; margin-top: 4px; min-height: 15px; }
@@ -461,6 +494,10 @@
     body {
       cursor: none;
     }
+    /* Системный курсор text для полей ввода */
+    input, textarea, select, [contenteditable="true"] {
+      cursor: text !important;
+    }
     .custom-cursor {
       position: fixed;
       pointer-events: none;
@@ -471,7 +508,7 @@
       background: rgba(200, 200, 200, 0.9);
       box-shadow: 0 0 12px rgba(255,255,255,0.5);
       transform: translate(-50%, -50%);
-      transition: width 0.15s ease, height 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+      transition: width 0.15s ease, height 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.15s ease;
     }
     .custom-cursor--hover {
       width: 36px;
@@ -985,6 +1022,7 @@
     const cursor = document.getElementById('customCursor');
     let mouseX = -100, mouseY = -100;
     let cursorX = -100, cursorY = -100;
+    let hidden = false;
 
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
@@ -995,7 +1033,7 @@
       cursor.style.opacity = '0';
     });
     document.addEventListener('mouseenter', () => {
-      cursor.style.opacity = '1';
+      if (!hidden) cursor.style.opacity = '1';
     });
 
     function animateCursor() {
@@ -1007,14 +1045,29 @@
     }
     animateCursor();
 
-    const hoverTargets = 'a, button, .tile, .project-card, .burger, .social-button, .social-item, .theme-toggle, .back-to-top, input, [role="switch"], .avatar-upload__circle';
+    const hoverTargets = 'a, button, .tile, .project-card, .burger, .social-button, .social-item, .theme-toggle, .back-to-top, [role="switch"], .avatar-upload__circle';
+    const textTargets = 'input, textarea, select, [contenteditable="true"]';
+
     document.addEventListener('mouseover', (e) => {
-      if (e.target.closest(hoverTargets)) {
+      const t = e.target;
+      if (t.closest(textTargets)) {
+        cursor.style.opacity = '0';
+        hidden = true;
+        return;
+      }
+      hidden = false;
+      cursor.style.opacity = '1';
+      if (t.closest(hoverTargets)) {
         cursor.classList.add('custom-cursor--hover');
       }
     });
     document.addEventListener('mouseout', (e) => {
-      if (e.target.closest(hoverTargets)) {
+      const t = e.target;
+      if (t.closest(textTargets)) {
+        hidden = false;
+        cursor.style.opacity = '1';
+      }
+      if (t.closest(hoverTargets)) {
         cursor.classList.remove('custom-cursor--hover');
       }
     });
@@ -1543,7 +1596,6 @@
     changePassBody.style.maxHeight = '0px';
     changeNameArrow.style.transform = 'rotate(0deg)';
     changePassArrow.style.transform = 'rotate(0deg)';
-    // Устанавливаем текущую аватарку
     if (currentUserAvatar) {
       setAvatar(currentUserAvatar);
     } else {
@@ -1589,6 +1641,7 @@
         if (titleEl && titleEl.textContent !== label) titleEl.textContent = label;
         tile.classList.add('visible');
       });
+      document.querySelectorAll('.project-card').forEach(card => card.classList.add('visible'));
     }
     setCookie(ANIMATIONS_ENABLED_KEY, on ? 'on' : 'off', 365);
   }
@@ -1752,7 +1805,7 @@
   async function renderProjects(category) {
     const list = sortProjectsByYear(projects[category] || []);
     grid.innerHTML = '';
-    for (const p of list) {
+    list.forEach((p, idx) => {
       const card = document.createElement('div');
       card.className = 'project-card';
       card.dataset.projectName = p.name;
@@ -1799,25 +1852,62 @@
       reactions.appendChild(dislikeBtn);
       card.appendChild(reactions);
 
-      // Загружаем статистику реакций
+      // Скачивание
+      if (p.action === 'download') {
+        const wrap = document.createElement('div');
+        wrap.className = 'project-card__download-wrap';
+        const btn = document.createElement('a');
+        btn.className = 'project-card__download';
+        btn.href = '#';
+        btn.textContent = 'Скачать';
+        btn.addEventListener('click', (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
+          alert('Скачивание: ' + p.name);
+        });
+        wrap.appendChild(btn);
+
+        const downloadCount = document.createElement('div');
+        downloadCount.className = 'project-card__download-count';
+        downloadCount.textContent = 'Скачано: 0';
+        wrap.appendChild(downloadCount);
+
+        card.appendChild(wrap);
+        card.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          card.classList.toggle('expanded');
+        });
+      }
+
+      grid.appendChild(card);
+
+      // Плавное появление карточки
+      if (animationsEnabled()) {
+        setTimeout(() => card.classList.add('visible'), idx * 80);
+      } else {
+        card.classList.add('visible');
+      }
+
+      // Печатаем текст сразу в этой карточке
+      card.querySelectorAll('[data-type]').forEach((el, i) => {
+        const text = el.getAttribute('data-type');
+        typeText(el, text, 14, 150 + i * 80);
+      });
+
+      // Загружаем статистику реакций (не блокируя печать)
       if (currentUser && fbGetProjectStats) {
-        try {
-          const stats = await fbGetProjectStats(p.name);
+        fbGetProjectStats(p.name).then(stats => {
+          if (!stats) return;
           const likeCount = likeBtn.querySelector('.like-count');
           const dislikeCount = dislikeBtn.querySelector('.dislike-count');
-          if (stats) {
-            likeCount.textContent = stats.likes ? stats.likes.length : 0;
-            dislikeCount.textContent = stats.dislikes ? stats.dislikes.length : 0;
-            if (stats.likes && stats.likes.includes(currentUser)) {
-              likeBtn.classList.add('active');
-            }
-            if (stats.dislikes && stats.dislikes.includes(currentUser)) {
-              dislikeBtn.classList.add('active');
-            }
+          likeCount.textContent = stats.likes ? stats.likes.length : 0;
+          dislikeCount.textContent = stats.dislikes ? stats.dislikes.length : 0;
+          if (stats.likes && stats.likes.includes(currentUser)) {
+            likeBtn.classList.add('active');
           }
-        } catch (e) {
-          console.warn('Не удалось загрузить статистику:', e);
-        }
+          if (stats.dislikes && stats.dislikes.includes(currentUser)) {
+            dislikeBtn.classList.add('active');
+          }
+        }).catch(e => console.warn('Не удалось загрузить статистику:', e));
       }
 
       // Обработчики реакций
@@ -1862,39 +1952,6 @@
           }
         }
       });
-
-      // Скачивание
-      if (p.action === 'download') {
-        const wrap = document.createElement('div');
-        wrap.className = 'project-card__download-wrap';
-        const btn = document.createElement('a');
-        btn.className = 'project-card__download';
-        btn.href = '#';
-        btn.textContent = 'Скачать';
-        btn.addEventListener('click', (ev) => {
-          ev.preventDefault(); ev.stopPropagation();
-          alert('Скачивание: ' + p.name);
-        });
-        wrap.appendChild(btn);
-
-        const downloadCount = document.createElement('div');
-        downloadCount.className = 'project-card__download-count';
-        downloadCount.textContent = 'Скачано: 0';
-        wrap.appendChild(downloadCount);
-
-        card.appendChild(wrap);
-        card.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          card.classList.toggle('expanded');
-        });
-      }
-
-      grid.appendChild(card);
-    }
-
-    grid.querySelectorAll('[data-type]').forEach((el, idx) => {
-      const text = el.getAttribute('data-type');
-      typeText(el, text, 14, 100 + idx * 60);
     });
   }
 
@@ -2066,14 +2123,12 @@
     const footerHeight = footer ? footer.offsetHeight : 0;
     const footerTop = docHeight - footerHeight;
 
-    // Показываем кнопку после 300px прокрутки
     if (scrollY > 300) {
       backToTopBtn.classList.add('visible');
     } else {
       backToTopBtn.classList.remove('visible');
     }
 
-    // Ограничиваем кнопку так, чтобы она не заходила на футер
     if (footerHeight > 0 && scrollY + winHeight > footerTop) {
       const overlap = (scrollY + winHeight) - footerTop;
       backToTopBtn.style.bottom = (30 + overlap) + 'px';
@@ -2225,11 +2280,9 @@
     if (!data.likes) data.likes = [];
     if (!data.dislikes) data.dislikes = [];
 
-    // Убираем из обоих списков
     data.likes = data.likes.filter(u => u !== userName);
     data.dislikes = data.dislikes.filter(u => u !== userName);
 
-    // Добавляем в нужный
     if (reaction === 'like') {
       data.likes.push(userName);
     } else if (reaction === 'dislike') {
