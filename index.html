@@ -2285,51 +2285,37 @@
 
 <!-- ===== Счётчик онлайна через Firebase ===== -->
 <script type="module">
-  // ============================================================
-  //  ВСТАВЬ СЮДА СВОЙ КОНФИГ ИЗ FIREBASE CONSOLE
-  //  Настройки проекта → Общие → Ваши приложения → веб-приложение
-  //  ВАЖНО: поле databaseURL должно быть обязательно!
-  //  Для проекта artemis-112 он выглядит так:
-  //  https://artemis-112-default-rtdb.firebaseio.com
-  // ============================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onDisconnect, set, onValue }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ==== ТВОЙ КОНФИГ ====
   const firebaseConfig = {
-    apiKey: "ВСТАВЬ_СВОЙ_API_KEY",
+    apiKey: "AIzaSyBFFGTfZOJW7rfP3X0bdLOU_VE1gKseQK4",
     authDomain: "artemis-112.firebaseapp.com",
     databaseURL: "https://artemis-112-default-rtdb.firebaseio.com",
     projectId: "artemis-112",
-    storageBucket: "artemis-112.appspot.com",
-    messagingSenderId: "ВСТАВЬ_СВОЙ_SENDER_ID",
-    appId: "ВСТАВЬ_СВОЙ_APP_ID"
+    storageBucket: "artemis-112.firebasestorage.app",
+    messagingSenderId: "616490507729",
+    appId: "1:616490507729:web:ae88a3c498eb451c0954f0"
   };
-  // ============================================================
 
   try {
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-    const { getDatabase, ref, onDisconnect, set, onValue, remove }
-      = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-
     const app = initializeApp(firebaseConfig);
     const db  = getDatabase(app);
 
-    // уникальный ID для этой вкладки
     const clientId = 'u_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
-
     const onlineEl = document.getElementById('onlineCount');
     const myRef = ref(db, 'online/' + clientId);
 
-    // помечаем себя онлайн
     await set(myRef, { ts: Date.now() });
-
-    // при закрытии вкладки — удаляем запись
     onDisconnect(myRef).remove();
 
-    // на всякий случай обновляем timestamp каждые 25 секунд,
-    // чтобы не считался «зависшим» при сбое onDisconnect
+    // обновляем timestamp каждые 25 сек, чтобы запись не считалась «зависшей»
     setInterval(() => {
       set(myRef, { ts: Date.now() }).catch(() => {});
     }, 25000);
 
-    // считаем всех онлайн (обновляется в реальном времени)
     const allRef = ref(db, 'online');
     onValue(allRef, (snapshot) => {
       const data = snapshot.val() || {};
