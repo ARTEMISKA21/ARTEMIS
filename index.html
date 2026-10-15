@@ -862,14 +862,11 @@
     setTimeout(type, startDelay);
   }
 
-  /* ===== Последовательная печать (для досье) =====
-     Печатает элементы по очереди: сначала полностью первый,
-     потом пауза — и следующий. */
-  function typeTextSequential(elements, speed = 28, gap = 450, startDelay = 0) {
+  /* ===== Последовательная печать ===== */
+  function typeTextSequential(elements, speed = 22, gap = 120, startDelay = 0) {
     return new Promise((resolve) => {
       if (!elements.length) { resolve(); return; }
 
-      // если анимации выключены — показать всё сразу
       if (!animationsEnabled()) {
         elements.forEach((el) => {
           el.textContent = el.getAttribute('data-type') || '';
@@ -878,7 +875,6 @@
         return;
       }
 
-      // очищаем все заранее
       elements.forEach((el) => { el.textContent = ''; });
 
       let idx = 0;
@@ -889,7 +885,6 @@
         const el = elements[idx];
         const text = el.getAttribute('data-type') || '';
 
-        // если анимации выключили по ходу — показать всё
         if (!animationsEnabled()) {
           elements.forEach((e) => {
             e.textContent = e.getAttribute('data-type') || '';
@@ -928,13 +923,12 @@
   function runDossierTyping() {
     const dossierLines = document.querySelectorAll('#dossier .about-sign__text p[data-type]');
     if (!dossierLines.length) return;
-    typeTextSequential(Array.from(dossierLines), 28, 450, 1200);
+    typeTextSequential(Array.from(dossierLines), 22, 120, 1200);
   }
 
   /* ===== Печать общих элементов ===== */
   function runAllTyping() {
     document.querySelectorAll('[data-type]').forEach((el, idx) => {
-      // пропускаем строки досье — они печатаются отдельно
       if (el.closest('#dossier')) return;
       const text = el.getAttribute('data-type');
       typeText(el, text, 18, 300 + idx * 200);
@@ -1619,7 +1613,7 @@
   }
   requestAnimationFrame(loop);
 
-  /* ===== Инициализация: если юзер сохранён в куке — подтянуть из Firebase ===== */
+  /* ===== Инициализация ===== */
   (async () => {
     await window.__firebaseReady;
     const savedName = getCookie('artemis_user');
@@ -1663,7 +1657,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  /* ===== Счётчик онлайн ===== */
   (async () => {
     try {
       const clientId = 'u_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
@@ -1695,7 +1688,6 @@
     }
   })();
 
-  /* ===== Функции работы с пользователями ===== */
   function normName(name) {
     return String(name || '').trim().toLowerCase();
   }
