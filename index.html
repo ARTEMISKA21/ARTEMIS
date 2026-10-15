@@ -491,13 +491,20 @@
 
   /* ===== Кастомный курсор (только для ПК) ===== */
   @media (hover: hover) and (pointer: fine) {
-    body {
-      cursor: none;
+    /* Скрываем системный курсор у всех элементов, кроме полей ввода */
+    body,
+    a, button, .tile, .project-card, .burger, .social-button, .social-item,
+    .theme-toggle, .back-to-top, [role="switch"], .avatar-upload__circle,
+    .menu, .menu a, .menu__register, .menu__login, .menu__user,
+    .profile-menu__item, .project-card__reaction,
+    *:not(input):not(textarea):not(select):not([contenteditable="true"]) {
+      cursor: none !important;
     }
-    /* Системный курсор text для полей ввода */
+    /* Возвращаем системный text для полей ввода */
     input, textarea, select, [contenteditable="true"] {
       cursor: text !important;
     }
+
     .custom-cursor {
       position: fixed;
       pointer-events: none;
@@ -1797,7 +1804,6 @@
   let selectedTile = null;
   let animating = false;
 
-  // Сортировка проектов по году (от новых к старым)
   function sortProjectsByYear(list) {
     return [...list].sort((a, b) => (b.year || 0) - (a.year || 0));
   }
@@ -1832,7 +1838,6 @@
         card.appendChild(d);
       }
 
-      // Реакции (лайк/дизлайк)
       const reactions = document.createElement('div');
       reactions.className = 'project-card__reactions';
 
@@ -1852,7 +1857,6 @@
       reactions.appendChild(dislikeBtn);
       card.appendChild(reactions);
 
-      // Скачивание
       if (p.action === 'download') {
         const wrap = document.createElement('div');
         wrap.className = 'project-card__download-wrap';
@@ -1880,20 +1884,17 @@
 
       grid.appendChild(card);
 
-      // Плавное появление карточки
       if (animationsEnabled()) {
         setTimeout(() => card.classList.add('visible'), idx * 80);
       } else {
         card.classList.add('visible');
       }
 
-      // Печатаем текст сразу в этой карточке
       card.querySelectorAll('[data-type]').forEach((el, i) => {
         const text = el.getAttribute('data-type');
         typeText(el, text, 14, 150 + i * 80);
       });
 
-      // Загружаем статистику реакций (не блокируя печать)
       if (currentUser && fbGetProjectStats) {
         fbGetProjectStats(p.name).then(stats => {
           if (!stats) return;
@@ -1910,7 +1911,6 @@
         }).catch(e => console.warn('Не удалось загрузить статистику:', e));
       }
 
-      // Обработчики реакций
       likeBtn.addEventListener('click', async (ev) => {
         ev.stopPropagation();
         if (!currentUser) {
@@ -2260,7 +2260,6 @@
     await remove(ref(db, 'users/' + key));
   };
 
-  /* ===== Реакции проектов ===== */
   function projectKey(name) {
     return String(name || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '_');
   }
