@@ -222,7 +222,7 @@
 
   .menu__user {
     margin: 0 0 6px;
-    padding: 10px 14px;
+    padding: 8px 14px;
     border-radius: 8px;
     background: transparent;
     border: 1px dashed #4a4a4a;
@@ -233,11 +233,28 @@
     display: none;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
   }
-  .menu__user.visible { display: block; }
+  .menu__user.visible { display: flex; }
   .menu__user:hover { background: rgba(255,255,255,0.05); border-color: #6a6a6a; color: #e8e8e8; }
   body.light .menu__user { border-color: #d0d0d0; color: #444; }
   body.light .menu__user:hover { background: rgba(0,0,0,0.04); border-color: #b0b0b0; color: #111; }
+
+  .menu__user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #5a5a5a;
+    flex-shrink: 0;
+    display: block;
+  }
+  body.light .menu__user-avatar {
+    border-color: #c0c0c0;
+  }
 
   .profile-menu { display: none; flex-direction: column; gap: 4px; margin: 0 0 6px; padding: 6px; background: rgba(40,40,40,0.95); border: 1px solid #4a4a4a; border-radius: 8px; }
   .profile-menu.visible { display: flex; }
@@ -651,11 +668,6 @@
   body.light .avatar-upload__label {
     color: #888;
   }
-
-  /* Плавный скролл */
-  html {
-    scroll-behavior: smooth;
-  }
 </style>
 
 <!-- ===== Кастомный курсор ===== -->
@@ -673,7 +685,10 @@
   <nav class="menu" id="menu">
     <button class="menu__login" id="openLogin" type="button">Войти</button>
     <button class="menu__register" id="openRegister" type="button">Регистрация</button>
-    <div class="menu__user" id="menuUser"><span id="menuUserName"></span></div>
+    <div class="menu__user" id="menuUser">
+      <img class="menu__user-avatar" id="menuUserAvatar" src="" alt="" style="display:none;">
+      <span id="menuUserName"></span>
+    </div>
 
     <div class="profile-menu" id="profileMenu">
       <button class="profile-menu__item" id="openSettings" type="button">Настройки</button>
@@ -1024,7 +1039,30 @@
     }
   });
 
-  /* ===== Плавный скролл к якорям ===== */
+  /* ===== Плавный скролл к якорям (кастомный easing) ===== */
+  function smoothScrollTo(targetY, duration = 900) {
+    const startY = window.scrollY;
+    const diff = targetY - startY;
+    if (Math.abs(diff) < 2) return;
+    let startTime = null;
+
+    function easeInOutCubic(t) {
+      return t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function step(timestamp) {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutCubic(progress);
+      window.scrollTo(0, startY + diff * eased);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
   document.querySelectorAll('a[data-scroll]').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1033,7 +1071,9 @@
       if (!target) return;
       burger.classList.remove('open');
       menu.classList.remove('open');
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const offset = 20;
+      const targetY = target.getBoundingClientRect().top + window.scrollY - offset;
+      smoothScrollTo(targetY, 900);
     });
   });
 
@@ -1218,6 +1258,7 @@
   const openRegisterBtn = document.getElementById('openRegister');
   const menuUser = document.getElementById('menuUser');
   const menuUserName = document.getElementById('menuUserName');
+  const menuUserAvatar = document.getElementById('menuUserAvatar');
   const profileMenu = document.getElementById('profileMenu');
 
   let currentUser = null;
@@ -1230,12 +1271,24 @@
       profileMenu.classList.remove('visible');
       openRegisterBtn.style.display = '';
       openLoginBtn.style.display = '';
+      menuUserAvatar.style.display = 'none';
       return;
     }
     menuUserName.textContent = name;
     menuUser.classList.add('visible');
     openRegisterBtn.style.display = 'none';
     openLoginBtn.style.display = 'none';
+    updateMenuAvatar();
+  }
+
+  function updateMenuAvatar() {
+    if (!menuUserAvatar) return;
+    if (currentUserAvatar) {
+      menuUserAvatar.src = currentUserAvatar;
+      menuUserAvatar.style.display = 'block';
+    } else {
+      menuUserAvatar.style.display = 'none';
+    }
   }
 
   /* ===== Сохранение настроек в Firebase ===== */
@@ -1264,6 +1317,7 @@
       avatarPreview.style.display = 'none';
       avatarPlaceholder.style.display = '';
     }
+    updateMenuAvatar();
   }
 
   avatarCircle.addEventListener('click', () => {
@@ -1423,6 +1477,7 @@
       setCookie('artemis_user', name, 365);
       showUser(name);
       currentUserAvatar = user.avatar || null;
+      updateMenuAvatar();
 
       applyTheme(user.theme === 'light', true);
       applyAnimSetting(user.anim !== 'off');
@@ -2003,7 +2058,6 @@
   /* ===== Кнопка «Наверх» ===== */
   const backToTopBtn = document.getElementById('backToTop');
   const footer = document.querySelector('.site-footer');
-  let backToTopBottom = 30;
 
   function updateBackToTop() {
     const scrollY = window.scrollY;
@@ -2021,7 +2075,6 @@
 
     // Ограничиваем кнопку так, чтобы она не заходила на футер
     if (footerHeight > 0 && scrollY + winHeight > footerTop) {
-      // Кнопка упирается в верхнюю границу футера
       const overlap = (scrollY + winHeight) - footerTop;
       backToTopBtn.style.bottom = (30 + overlap) + 'px';
     } else {
@@ -2034,7 +2087,7 @@
   updateBackToTop();
 
   backToTopBtn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    smoothScrollTo(0, 900);
   });
 
   /* ===== Инициализация ===== */
@@ -2054,6 +2107,7 @@
       }
       showUser(savedName);
       currentUserAvatar = user.avatar || null;
+      updateMenuAvatar();
       applyTheme(user.theme === 'light', true);
       updateAnimToggle(user.anim !== 'off', true);
     } catch (e) {
