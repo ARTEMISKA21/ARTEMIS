@@ -298,7 +298,7 @@
   .project-card__action--none { color: #7a7a7a; }
   .project-card__desc { font-size: 12px; color: #b0b0b0; line-height: 1.4; margin-top: 4px; }
   .project-card__download-wrap { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease, margin-top 0.3s ease; margin-top: 0; }
-  .project-card.expanded .project-card__download-wrap { max-height: 80px; opacity: 1; margin-top: 8px; }
+  .project-card.expanded .project-card__download-wrap { max-height: 120px; opacity: 1; margin-top: 8px; }
   .project-card__download { display: block; width: 100%; padding: 10px 14px; font-size: 13px; font-weight: 600; font-family: inherit; border-radius: 8px; border: 1px solid #5a5a5a; background: #4a4a4a; color: #fff; cursor: pointer; text-align: center; text-decoration: none; box-sizing: border-box; transition: background 0.2s ease, border-color 0.2s ease; }
   .project-card__download:hover { background: #5a5a5a; border-color: #6a6a6a; }
   body.light .project-card__download { background: #333; border-color: #333; color: #fff; }
@@ -438,9 +438,228 @@
   .modal-box__content { opacity: 0; transition: opacity 0.3s ease 0.2s; }
   .modal-box.open .modal-box__content { opacity: 1; }
   @media (max-width: 600px) { .modal-box { padding: 20px; } }
+
+  /* ===== Кастомный курсор (только для ПК) ===== */
+  @media (hover: hover) and (pointer: fine) {
+    body {
+      cursor: none;
+    }
+    .custom-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999999;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(200, 200, 200, 0.9);
+      box-shadow: 0 0 12px rgba(255,255,255,0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.15s ease, height 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .custom-cursor--hover {
+      width: 36px;
+      height: 36px;
+      background: rgba(74, 74, 74, 0.6);
+      border: 1px solid rgba(200,200,200,0.5);
+      box-shadow: 0 0 18px rgba(255,255,255,0.3);
+    }
+    body.light .custom-cursor {
+      background: rgba(80, 80, 80, 0.9);
+      box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    }
+    body.light .custom-cursor--hover {
+      background: rgba(200, 200, 200, 0.4);
+      border-color: rgba(80,80,80,0.4);
+    }
+  }
+
+  /* ===== Кнопка «Наверх» ===== */
+  .back-to-top {
+    position: fixed;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #4a4a4a;
+    color: #fff;
+    border: 1px solid #5a5a5a;
+    font-size: 24px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s, background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    transform: translateY(10px);
+    will-change: top;
+  }
+  .back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .back-to-top:hover {
+    background: #5a5a5a;
+    border-color: #6a6a6a;
+  }
+  body.light .back-to-top {
+    background: #d8d8d8;
+    color: #333;
+    border-color: #c0c0c0;
+  }
+  body.light .back-to-top:hover {
+    background: #c0c0c0;
+    border-color: #aaa;
+  }
+  @media (max-width: 600px) {
+    .back-to-top {
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      font-size: 20px;
+    }
+  }
+
+  /* ===== Кнопки лайк/дизлайк ===== */
+  .project-card__reactions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .project-card__reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #4a4a4a;
+    background: transparent;
+    color: #c8c8c8;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    user-select: none;
+  }
+  .project-card__reaction:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: #5a5a5a;
+  }
+  .project-card__reaction--like.active {
+    background: rgba(61, 220, 132, 0.15);
+    border-color: #3ddc84;
+    color: #3ddc84;
+  }
+  .project-card__reaction--dislike.active {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+  }
+  body.light .project-card__reaction {
+    border-color: #d0d0d0;
+    color: #666;
+  }
+  body.light .project-card__reaction:hover {
+    background: rgba(0,0,0,0.05);
+  }
+  body.light .project-card__reaction--like.active {
+    background: rgba(61, 220, 132, 0.15);
+    border-color: #16a34a;
+    color: #16a34a;
+  }
+  body.light .project-card__reaction--dislike.active {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: #dc2626;
+    color: #dc2626;
+  }
+  .project-card__download-count {
+    font-size: 11px;
+    color: #9a9a9a;
+    text-align: center;
+    margin-top: 4px;
+    transition: color 0.4s ease;
+  }
+  body.light .project-card__download-count {
+    color: #888;
+  }
+
+  /* ===== Аватарка в настройках ===== */
+  .avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    background: #2a2a2a;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .avatar-upload__circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #4a4a4a;
+    border: 2px solid #5a5a5a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.25s ease, background 0.25s ease;
+    position: relative;
+  }
+  .avatar-upload__circle:hover {
+    border-color: #7a7a7a;
+    background: #555;
+  }
+  .avatar-upload__circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .avatar-upload__placeholder {
+    font-size: 26px;
+    color: #9a9a9a;
+    line-height: 1;
+    user-select: none;
+  }
+  .avatar-upload__label {
+    font-size: 12px;
+    color: #9a9a9a;
+    letter-spacing: 0.5px;
+  }
+  body.light .avatar-upload {
+    background: #f0f0f0;
+  }
+  body.light .avatar-upload__circle {
+    background: #e0e0e0;
+    border-color: #ccc;
+  }
+  body.light .avatar-upload__circle:hover {
+    background: #d8d8d8;
+    border-color: #aaa;
+  }
+  body.light .avatar-upload__placeholder {
+    color: #777;
+  }
+  body.light .avatar-upload__label {
+    color: #888;
+  }
+
+  /* Плавный скролл */
+  html {
+    scroll-behavior: smooth;
+  }
 </style>
 
-
+<!-- ===== Кастомный курсор ===== -->
+<div class="custom-cursor" id="customCursor"></div>
 
 <!-- ===== Превью ===== -->
 <div class="site-preview" id="preview">
@@ -461,9 +680,9 @@
       <button class="profile-menu__item profile-menu__item--danger" id="logoutBtn" type="button">Выйти</button>
     </div>
 
-    <a href="#tilesBlock">Проекты</a>
-    <a href="#aboutSign">Цифровой тег</a>
-    <a href="#dossier">Досье</a>
+    <a href="#tilesBlock" data-scroll>Проекты</a>
+    <a href="#aboutSign" data-scroll>Цифровой тег</a>
+    <a href="#dossier" data-scroll>Досье</a>
 
     <div class="theme-switch">
       <span class="theme-switch__label">Тема</span>
@@ -609,6 +828,9 @@
   </button>
 </div>
 
+<!-- ===== Кнопка «Наверх» ===== -->
+<button class="back-to-top" id="backToTop" aria-label="Наверх">↑</button>
+
 <!-- ===== Модальное окно регистрации ===== -->
 <div class="modal-overlay" id="registerModal">
   <div class="modal-box" id="registerBox">
@@ -680,6 +902,16 @@
     <div class="modal-box__content">
       <h2 style="font-size:20px; font-weight:700; margin:0 0 18px; text-align:center; color:#fff;">Настройки</h2>
 
+      <!-- Аватарка -->
+      <div class="avatar-upload" id="avatarUpload">
+        <div class="avatar-upload__circle" id="avatarCircle">
+          <span class="avatar-upload__placeholder" id="avatarPlaceholder">+</span>
+          <img id="avatarPreview" src="" alt="Аватар" style="display:none;">
+        </div>
+        <span class="avatar-upload__label">Аватар</span>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+      </div>
+
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; background:#2a2a2a; border-radius:10px; margin-bottom:12px;">
         <span style="font-size:14px; color:#e0e0e0;">Анимации</span>
         <div id="animToggle" role="switch" aria-checked="true" tabindex="0" style="position:relative; width:52px; height:28px; border-radius:14px; background:#4a4a4a; cursor:pointer; transition:background 0.3s ease; flex-shrink:0;">
@@ -730,6 +962,49 @@
 </div>
 
 <script>
+  /* ===== Кастомный курсор (только для ПК) ===== */
+  (function initCustomCursor() {
+    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!isFinePointer) return;
+
+    const cursor = document.getElementById('customCursor');
+    let mouseX = -100, mouseY = -100;
+    let cursorX = -100, cursorY = -100;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    document.addEventListener('mouseleave', () => {
+      cursor.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+      cursor.style.opacity = '1';
+    });
+
+    function animateCursor() {
+      cursorX += (mouseX - cursorX) * 0.35;
+      cursorY += (mouseY - cursorY) * 0.35;
+      cursor.style.left = cursorX + 'px';
+      cursor.style.top = cursorY + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    const hoverTargets = 'a, button, .tile, .project-card, .burger, .social-button, .social-item, .theme-toggle, .back-to-top, input, [role="switch"], .avatar-upload__circle';
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest(hoverTargets)) {
+        cursor.classList.add('custom-cursor--hover');
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest(hoverTargets)) {
+        cursor.classList.remove('custom-cursor--hover');
+      }
+    });
+  })();
+
   /* ===== Бургер ===== */
   const burger = document.getElementById('burger');
   const menu = document.getElementById('menu');
@@ -747,6 +1022,19 @@
       menu.classList.remove('open');
       profileMenu.classList.remove('visible');
     }
+  });
+
+  /* ===== Плавный скролл к якорям ===== */
+  document.querySelectorAll('a[data-scroll]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      burger.classList.remove('open');
+      menu.classList.remove('open');
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   });
 
   /* ===== Cookies ===== */
@@ -768,6 +1056,8 @@
   let fbCreateUser = null;
   let fbUpdateUser = null;
   let fbDeleteUser = null;
+  let fbGetProjectStats = null;
+  let fbToggleReaction = null;
 
   window.__firebaseReady = new Promise((resolve) => {
     window.__resolveFirebaseReady = resolve;
@@ -862,10 +1152,6 @@
     setTimeout(type, startDelay);
   }
 
-  /* ===== Параллельная печать досье =====
-     Каждая строка печатается САМА ПО СЕБЕ, одновременно с остальными.
-     Небольшой сдвиг (idx * 60 мс) — только чтобы строки стартовали
-     «волной», а не выглядели одним мгновенным блоком. */
   function runDossierTyping() {
     const dossierLines = document.querySelectorAll('#dossier .about-sign__text p[data-type]');
     if (!dossierLines.length) return;
@@ -875,7 +1161,6 @@
     });
   }
 
-  /* ===== Печать общих элементов (кроме досье) ===== */
   function runAllTyping() {
     document.querySelectorAll('[data-type]').forEach((el, idx) => {
       if (el.closest('#dossier')) return;
@@ -936,6 +1221,7 @@
   const profileMenu = document.getElementById('profileMenu');
 
   let currentUser = null;
+  let currentUserAvatar = null;
 
   function showUser(name) {
     currentUser = name || null;
@@ -961,6 +1247,46 @@
       console.warn('Не удалось сохранить настройку:', e);
     }
   }
+
+  /* ===== Аватарка ===== */
+  const avatarCircle = document.getElementById('avatarCircle');
+  const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const avatarInput = document.getElementById('avatarInput');
+
+  function setAvatar(dataUrl) {
+    currentUserAvatar = dataUrl || null;
+    if (dataUrl) {
+      avatarPreview.src = dataUrl;
+      avatarPreview.style.display = 'block';
+      avatarPlaceholder.style.display = 'none';
+    } else {
+      avatarPreview.style.display = 'none';
+      avatarPlaceholder.style.display = '';
+    }
+  }
+
+  avatarCircle.addEventListener('click', () => {
+    avatarInput.click();
+  });
+
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files && avatarInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result;
+      setAvatar(dataUrl);
+      if (currentUser && fbUpdateUser) {
+        try {
+          await fbUpdateUser(currentUser, { avatar: dataUrl });
+        } catch (e) {
+          console.warn('Не удалось сохранить аватар:', e);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  });
 
   /* ===== Регистрация ===== */
   const regCancel = document.getElementById('regCancel');
@@ -1096,6 +1422,7 @@
 
       setCookie('artemis_user', name, 365);
       showUser(name);
+      currentUserAvatar = user.avatar || null;
 
       applyTheme(user.theme === 'light', true);
       applyAnimSetting(user.anim !== 'off');
@@ -1122,6 +1449,8 @@
     e.stopPropagation();
     deleteCookie('artemis_user');
     showUser(null);
+    currentUserAvatar = null;
+    setAvatar(null);
     profileMenu.classList.remove('visible');
   });
 
@@ -1159,6 +1488,12 @@
     changePassBody.style.maxHeight = '0px';
     changeNameArrow.style.transform = 'rotate(0deg)';
     changePassArrow.style.transform = 'rotate(0deg)';
+    // Устанавливаем текущую аватарку
+    if (currentUserAvatar) {
+      setAvatar(currentUserAvatar);
+    } else {
+      setAvatar(null);
+    }
     openModalOverlay(settingsModal, settingsBox);
   }
   function closeSettingsModal() { closeModalOverlay(settingsModal, settingsBox); }
@@ -1256,6 +1591,9 @@
       if (!oldUser) { nameErr.textContent = 'Ошибка: юзер не найден'; return; }
 
       await fbCreateUser(val, oldUser.pass, oldUser.theme || 'dark', oldUser.anim || 'on');
+      if (oldUser.avatar) {
+        await fbUpdateUser(val, { avatar: oldUser.avatar });
+      }
       await fbDeleteUser(currentUser);
 
       setCookie('artemis_user', val, 365);
@@ -1314,32 +1652,32 @@
   /* ===== Проекты ===== */
   const projects = {
     android: [
-      { name: 'ARTEMIS', meta: 'Android · Приложение — 2026 · v11.2', action: 'none' },
-      { name: 'ARTEMIS PZP', meta: 'Android · Приложение — 2026 · v11.2', action: 'none' },
-      { name: 'ARTEMIS NFC', meta: 'Android · Приложение — 2026 · v11.2', action: 'none' }
+      { name: 'ARTEMIS', meta: 'Android · Приложение — 2026 · v11.2', action: 'none', year: 2026 },
+      { name: 'ARTEMIS PZP', meta: 'Android · Приложение — 2026 · v11.2', action: 'none', year: 2026 },
+      { name: 'ARTEMIS NFC', meta: 'Android · Приложение — 2026 · v11.2', action: 'none', year: 2026 }
     ],
     windows: [
-      { name: 'Artificial intelligence VK bot', meta: 'Windows · Бот — 2024 · v1', action: 'download', desc: 'Искусственный интеллект ВК бот.' },
-      { name: 'Artificial intelligence', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Искусственный Интеллект с Голосовым Интерфейсом.' },
-      { name: 'Computer Assembly', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Приложение для сборки, проверки компьютера, покупки компонентов.' },
-      { name: 'Connection', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Соединение 2 файлов Python между собой.' },
-      { name: 'Notes', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Заметки.' },
-      { name: 'Python Compiler', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Компилятор Python с удобным графическим интерфейсом.' },
-      { name: 'System', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Конфигурация компьютера.' },
-      { name: 'Youtube unblocking', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Разблокировка Ютуба.' },
-      { name: 'BL Assistant', meta: 'Windows · Приложение', action: 'none' }
+      { name: 'Computer Assembly', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Приложение для сборки, проверки компьютера, покупки компонентов.', year: 2025 },
+      { name: 'Notes', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Заметки.', year: 2025 },
+      { name: 'Python Compiler', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Компилятор Python с удобным графическим интерфейсом.', year: 2025 },
+      { name: 'Artificial intelligence VK bot', meta: 'Windows · Бот — 2024 · v1', action: 'download', desc: 'Искусственный интеллект ВК бот.', year: 2024 },
+      { name: 'Artificial intelligence', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Искусственный Интеллект с Голосовым Интерфейсом.', year: 2024 },
+      { name: 'Connection', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Соединение 2 файлов Python между собой.', year: 2024 },
+      { name: 'System', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Конфигурация компьютера.', year: 2024 },
+      { name: 'Youtube unblocking', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Разблокировка Ютуба.', year: 2024 },
+      { name: 'BL Assistant', meta: 'Windows · Приложение', action: 'none', year: 2024 }
     ],
     script: [
-      { name: 'Connection', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Соединение 2 файлов Python между собой.' },
-      { name: 'Python Compiler', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Компилятор Python с удобным графическим интерфейсом.' }
+      { name: 'Python Compiler', meta: 'Windows · Приложение — 2025 · v1', action: 'download', desc: 'Компилятор Python с удобным графическим интерфейсом.', year: 2025 },
+      { name: 'Connection', meta: 'Windows · Приложение — 2024 · v1', action: 'download', desc: 'Соединение 2 файлов Python между собой.', year: 2024 }
     ],
     bot: [
-      { name: 'Artificial intelligence VK bot', meta: 'Windows · Бот — 2024 · v1', action: 'download', desc: 'Искусственный интеллект ВК бот.' },
-      { name: 'TG clothing bot', meta: 'Windows · Бот', action: 'none' }
+      { name: 'Artificial intelligence VK bot', meta: 'Windows · Бот — 2024 · v1', action: 'download', desc: 'Искусственный интеллект ВК бот.', year: 2024 },
+      { name: 'TG clothing bot', meta: 'Windows · Бот', action: 'none', year: 2024 }
     ],
     games: [
-      { name: 'Game for remodeling', meta: 'Windows · Игра — 2024 · v1', action: 'download', desc: 'Это игра исходник для масштабирования в PvP на Python.' },
-      { name: 'Snake', meta: 'Windows · Игра — 2024 · v1', action: 'download', desc: 'Змейка.' }
+      { name: 'Game for remodeling', meta: 'Windows · Игра — 2024 · v1', action: 'download', desc: 'Это игра исходник для масштабирования в PvP на Python.', year: 2024 },
+      { name: 'Snake', meta: 'Windows · Игра — 2024 · v1', action: 'download', desc: 'Змейка.', year: 2024 }
     ]
   };
 
@@ -1351,12 +1689,18 @@
   let selectedTile = null;
   let animating = false;
 
-  function renderProjects(category) {
-    const list = projects[category] || [];
+  // Сортировка проектов по году (от новых к старым)
+  function sortProjectsByYear(list) {
+    return [...list].sort((a, b) => (b.year || 0) - (a.year || 0));
+  }
+
+  async function renderProjects(category) {
+    const list = sortProjectsByYear(projects[category] || []);
     grid.innerHTML = '';
-    list.forEach(p => {
+    for (const p of list) {
       const card = document.createElement('div');
       card.className = 'project-card';
+      card.dataset.projectName = p.name;
 
       const name = document.createElement('div');
       name.className = 'project-card__name';
@@ -1379,6 +1723,92 @@
         d.setAttribute('data-type', p.desc);
         card.appendChild(d);
       }
+
+      // Реакции (лайк/дизлайк)
+      const reactions = document.createElement('div');
+      reactions.className = 'project-card__reactions';
+
+      const likeBtn = document.createElement('button');
+      likeBtn.className = 'project-card__reaction project-card__reaction--like';
+      likeBtn.type = 'button';
+      likeBtn.innerHTML = '👍 <span class="like-count">0</span>';
+      likeBtn.dataset.reaction = 'like';
+
+      const dislikeBtn = document.createElement('button');
+      dislikeBtn.className = 'project-card__reaction project-card__reaction--dislike';
+      dislikeBtn.type = 'button';
+      dislikeBtn.innerHTML = '👎 <span class="dislike-count">0</span>';
+      dislikeBtn.dataset.reaction = 'dislike';
+
+      reactions.appendChild(likeBtn);
+      reactions.appendChild(dislikeBtn);
+      card.appendChild(reactions);
+
+      // Загружаем статистику реакций
+      if (currentUser && fbGetProjectStats) {
+        try {
+          const stats = await fbGetProjectStats(p.name);
+          const likeCount = likeBtn.querySelector('.like-count');
+          const dislikeCount = dislikeBtn.querySelector('.dislike-count');
+          if (stats) {
+            likeCount.textContent = stats.likes ? stats.likes.length : 0;
+            dislikeCount.textContent = stats.dislikes ? stats.dislikes.length : 0;
+            if (stats.likes && stats.likes.includes(currentUser)) {
+              likeBtn.classList.add('active');
+            }
+            if (stats.dislikes && stats.dislikes.includes(currentUser)) {
+              dislikeBtn.classList.add('active');
+            }
+          }
+        } catch (e) {
+          console.warn('Не удалось загрузить статистику:', e);
+        }
+      }
+
+      // Обработчики реакций
+      likeBtn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        if (!currentUser) {
+          alert('Войдите, чтобы оценивать проекты');
+          return;
+        }
+        if (fbToggleReaction) {
+          try {
+            const result = await fbToggleReaction(p.name, currentUser, 'like');
+            if (result) {
+              likeBtn.querySelector('.like-count').textContent = result.likes.length;
+              dislikeBtn.querySelector('.dislike-count').textContent = result.dislikes.length;
+              likeBtn.classList.toggle('active', result.likes.includes(currentUser));
+              dislikeBtn.classList.toggle('active', result.dislikes.includes(currentUser));
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      });
+
+      dislikeBtn.addEventListener('click', async (ev) => {
+        ev.stopPropagation();
+        if (!currentUser) {
+          alert('Войдите, чтобы оценивать проекты');
+          return;
+        }
+        if (fbToggleReaction) {
+          try {
+            const result = await fbToggleReaction(p.name, currentUser, 'dislike');
+            if (result) {
+              likeBtn.querySelector('.like-count').textContent = result.likes.length;
+              dislikeBtn.querySelector('.dislike-count').textContent = result.dislikes.length;
+              likeBtn.classList.toggle('active', result.likes.includes(currentUser));
+              dislikeBtn.classList.toggle('active', result.dislikes.includes(currentUser));
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      });
+
+      // Скачивание
       if (p.action === 'download') {
         const wrap = document.createElement('div');
         wrap.className = 'project-card__download-wrap';
@@ -1391,14 +1821,22 @@
           alert('Скачивание: ' + p.name);
         });
         wrap.appendChild(btn);
+
+        const downloadCount = document.createElement('div');
+        downloadCount.className = 'project-card__download-count';
+        downloadCount.textContent = 'Скачано: 0';
+        wrap.appendChild(downloadCount);
+
         card.appendChild(wrap);
         card.addEventListener('click', (ev) => {
           ev.stopPropagation();
           card.classList.toggle('expanded');
         });
       }
+
       grid.appendChild(card);
-    });
+    }
+
     grid.querySelectorAll('[data-type]').forEach((el, idx) => {
       const text = el.getAttribute('data-type');
       typeText(el, text, 14, 100 + idx * 60);
@@ -1562,6 +2000,43 @@
   }
   requestAnimationFrame(loop);
 
+  /* ===== Кнопка «Наверх» ===== */
+  const backToTopBtn = document.getElementById('backToTop');
+  const footer = document.querySelector('.site-footer');
+  let backToTopBottom = 30;
+
+  function updateBackToTop() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight;
+    const winHeight = window.innerHeight;
+    const footerHeight = footer ? footer.offsetHeight : 0;
+    const footerTop = docHeight - footerHeight;
+
+    // Показываем кнопку после 300px прокрутки
+    if (scrollY > 300) {
+      backToTopBtn.classList.add('visible');
+    } else {
+      backToTopBtn.classList.remove('visible');
+    }
+
+    // Ограничиваем кнопку так, чтобы она не заходила на футер
+    if (footerHeight > 0 && scrollY + winHeight > footerTop) {
+      // Кнопка упирается в верхнюю границу футера
+      const overlap = (scrollY + winHeight) - footerTop;
+      backToTopBtn.style.bottom = (30 + overlap) + 'px';
+    } else {
+      backToTopBtn.style.bottom = '30px';
+    }
+  }
+
+  window.addEventListener('scroll', updateBackToTop, { passive: true });
+  window.addEventListener('resize', updateBackToTop, { passive: true });
+  updateBackToTop();
+
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   /* ===== Инициализация ===== */
   (async () => {
     await window.__firebaseReady;
@@ -1578,6 +2053,7 @@
         return;
       }
       showUser(savedName);
+      currentUserAvatar = user.avatar || null;
       applyTheme(user.theme === 'light', true);
       updateAnimToggle(user.anim !== 'off', true);
     } catch (e) {
@@ -1675,10 +2151,47 @@
     await remove(ref(db, 'users/' + key));
   };
 
+  /* ===== Реакции проектов ===== */
+  function projectKey(name) {
+    return String(name || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '_');
+  }
+
+  window.fbGetProjectStats = async function(projectName) {
+    const key = projectKey(projectName);
+    if (!key) return null;
+    const snap = await get(ref(db, 'projects/' + key));
+    return snap.exists() ? snap.val() : { likes: [], dislikes: [] };
+  };
+
+  window.fbToggleReaction = async function(projectName, userName, reaction) {
+    const key = projectKey(projectName);
+    if (!key || !userName) return null;
+    const snap = await get(ref(db, 'projects/' + key));
+    let data = snap.exists() ? snap.val() : { likes: [], dislikes: [] };
+    if (!data.likes) data.likes = [];
+    if (!data.dislikes) data.dislikes = [];
+
+    // Убираем из обоих списков
+    data.likes = data.likes.filter(u => u !== userName);
+    data.dislikes = data.dislikes.filter(u => u !== userName);
+
+    // Добавляем в нужный
+    if (reaction === 'like') {
+      data.likes.push(userName);
+    } else if (reaction === 'dislike') {
+      data.dislikes.push(userName);
+    }
+
+    await set(ref(db, 'projects/' + key), data);
+    return data;
+  };
+
   fbGetUser = window.fbGetUser;
   fbCreateUser = window.fbCreateUser;
   fbUpdateUser = window.fbUpdateUser;
   fbDeleteUser = window.fbDeleteUser;
+  fbGetProjectStats = window.fbGetProjectStats;
+  fbToggleReaction = window.fbToggleReaction;
 
   window.__resolveFirebaseReady();
 </script>
