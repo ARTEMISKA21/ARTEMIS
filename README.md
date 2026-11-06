@@ -14,7 +14,9 @@ ARTEMIS — мой собственный лаунчер, созданный д�
   <img src="Photo/ARTEMIS 1.jpg" width="30%">
   <img src="Photo/ARTEMIS 2.jpg" width="30%">
   <img src="Photo/ARTEMIS 3.jpg" width="30%">
-</div>🎬 Видео
+</div>
+
+🎬 Видео
 
 - "▶ Видео 1" (Photo/ARTEMIS 1.mp4)
 - "▶ Видео 2" (Photo/ARTEMIS 2.mp4)
