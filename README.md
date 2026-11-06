@@ -11,16 +11,14 @@ ARTEMIS — мой собственный лаунчер, созданный д�
 📸 Галерея
 
 <div align="center">
-  <img src="Photo/ARTEMIS 1.jpg" width="30%">
-  <img src="Photo/ARTEMIS 2.jpg" width="30%">
-  <img src="Photo/ARTEMIS 3.jpg" width="30%">
-</div>
+  <img src="Photo/ARTEMIS%201.jpg" width="30%">
+  <img src="Photo/ARTEMIS%202.jpg" width="30%">
+  <img src="Photo/ARTEMIS%203.jpg" width="30%">
+</div>🎬 Видео
 
-🎬 Видео
+- "▶ Посмотреть видео 1" (Photo/ARTEMIS%201.mp4)
+- "▶ Посмотреть видео 2" (Photo/ARTEMIS%202.mp4)
 
-- "▶ Видео 1" (Photo/ARTEMIS 1.mp4)
-- "▶ Видео 2" (Photo/ARTEMIS 2.mp4)
-
-<div align="center">ARTEMIS — All projects in one place.
+<div align="center">ARTEMIS — Все проекты в одном месте.
 
 </div>
