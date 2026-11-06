@@ -16,12 +16,6 @@ ARTEMIS — мой собственный лаунчер, созданный д�
   <img src="Photo/ARTEMIS 2.jpg" width="30%">
 </div>
 
-🎬 Видео
-
-<div align="center">
-  <img src="https://raw.githubusercontent.com/ARTEMISKA21/ARTEMIS/blob/main/Photo/ARTEMIS.gif" width="60%">
-</div>
-
 <div align="center">ARTEMIS — Все проекты в одном месте.
 
 </div>
